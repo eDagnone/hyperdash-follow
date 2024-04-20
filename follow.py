@@ -86,9 +86,9 @@ while server == None:
             player_to_find = player['tag'] + " " + player['name']
     
     #No support for password locked servers yet.
-    if server['password'] == True:
+    if server['password']:
         print("Sorry, password-locked servers are not supported yet.")
-        server == None
+        server = None
 
 
     
