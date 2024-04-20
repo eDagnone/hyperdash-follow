@@ -8,7 +8,7 @@ import json
 
 HYPERDASH_PATH = "C:/Program Files/Oculus/Software/Software/triangle-factory-hyper-dash/HyperDash.exe"
 
-
+pyautogui.PAUSE = 0.2
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR/tesseract.exe'
 
 def window_is_fullscreen(window):
@@ -81,14 +81,16 @@ while server == None:
     player_to_find = input("Please input the name of the player to spectate: ")
     server = get_server_by_player(server_list, player_to_find)
     if server is not None:
-        player = get_player_details(server, player_to_find)
-        if player['tag'] != '':
-            player_to_find = player['tag'] + " " + player['name']
+        if server['password']:
+            print("Sorry, password-locked servers are not supported yet.")
+            server = None
+        else:
+            player = get_player_details(server, player_to_find)
+            if player['tag'] != '':
+                player_to_find = player['tag'] + " " + player['name']
     
     #No support for password locked servers yet.
-    if server['password']:
-        print("Sorry, password-locked servers are not supported yet.")
-        server = None
+
 
 
     
