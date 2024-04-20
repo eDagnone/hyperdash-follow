@@ -1,3 +1,4 @@
-pillow #Yes, really
 pyautogui
 pygetwindow
+pytesseract
+pillow #Yes, really
