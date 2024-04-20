@@ -7,9 +7,8 @@ import requests
 import json
 
 HYPERDASH_PATH = "C:/Program Files/Oculus/Software/Software/triangle-factory-hyper-dash/HyperDash.exe"
-W_WIDTH = 800
-W_HEIGHT = 600
-DEBUGGING = 1
+
+
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR/tesseract.exe'
 
 def window_is_fullscreen(window):
@@ -50,9 +49,9 @@ def get_player_index(slot_regions, player_to_follow):
         for i, region in enumerate(slot_regions, start=1):
             image = pyautogui.screenshot(region=region)
             image = image.convert('L', dither=None)   # Convert to grayscale
-            text = pytesseract.image_to_string(image, config='--psm 11 --oem 1 -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!.,$\\\'\\\"" "')
-            print(f"Slot {i%10}:\t{text}\t")  # Debugging purposes
-            if(text[:13].strip() == player_to_follow[:13].strip()): #TODO: Add fuzzy matching
+            text = pytesseract.image_to_string(image, config='--psm 11 --oem 1 -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,$\\\'\\\"" "').strip()
+            print(f"Slot {i%10}:\t{text}")  # Debugging purposes
+            if(text[:13] == player_to_follow[:13].strip()): #TODO: Add fuzzy matching
                 print("FOUND at ", i%10)
                 return i%10
         time.sleep(3)
@@ -79,12 +78,18 @@ def get_player_details(server, player_to_find):
 server = None
 server_list = get_server_list()
 while server == None:
-    player_to_find = input("Please input the name of the player you want to find: ")
+    player_to_find = input("Please input the name of the player to spectate: ")
     server = get_server_by_player(server_list, player_to_find)
     if server is not None:
         player = get_player_details(server, player_to_find)
         if player['tag'] != '':
             player_to_find = player['tag'] + " " + player['name']
+    
+    #No support for password locked servers yet.
+    if server['password'] == True:
+        print("Sorry, password-locked servers are not supported yet.")
+        server == None
+
 
     
 # Start Hyperdash
@@ -92,7 +97,7 @@ args = ["-vrmode", "None", "-novr"]
 process = subprocess.Popen([HYPERDASH_PATH, *args], shell=True)
 
 window = wait_for_hyperdash_window()
-window = resize_hyperdash_window(window, W_WIDTH, W_HEIGHT)
+window = resize_hyperdash_window(window, 800, 600)
 
 #Window positional offset
 x = window.left
