@@ -8,7 +8,7 @@ import json
 
 HYPERDASH_PATH = "C:/Program Files/Oculus/Software/Software/triangle-factory-hyper-dash/HyperDash.exe"
 
-pyautogui.PAUSE = 0.2
+pyautogui.PAUSE = 0.4
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR/tesseract.exe'
 
 def window_is_fullscreen(window):
