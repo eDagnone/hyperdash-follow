@@ -8,7 +8,7 @@ import json
 
 HYPERDASH_PATH = "C:/Program Files/Oculus/Software/Software/triangle-factory-hyper-dash/HyperDash.exe"
 
-pyautogui.PAUSE = 0.4
+pyautogui.PAUSE = 0.5
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR/tesseract.exe'
 
 def window_is_fullscreen(window):
@@ -50,6 +50,7 @@ def get_player_index(slot_regions, player_to_follow):
             image = pyautogui.screenshot(region=region)
             image = image.convert('L', dither=None)   # Convert to grayscale
             text = pytesseract.image_to_string(image, config='--psm 11 --oem 1 -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,$\\\'\\\"" "').strip()
+            image.save(f"images/slot{i}.png")
             print(f"Slot {i%10}:\t{text}")  # Debugging purposes
             if(text[:13] == player_to_follow[:13].strip()): #TODO: Add fuzzy matching
                 print("FOUND at ", i%10)
@@ -128,17 +129,17 @@ window = resize_hyperdash_window(window, 1366,1550)
 x = window.left
 y = window.top
 slot_regions  = [#x,y,w,h
-    (48 + x, 76 + y, 186, 31),
-    (252 + x, 76 + y, 186, 31),
-    (48 + x, 208 + y, 186, 31),
-    (252 + x, 208 + y, 186, 31),
-    (48 + x, 335 + y, 186, 31),
+    (58 + x, 76 + y, 182, 31),
+    (256 + x, 76 + y, 182, 31),
+    (58 + x, 206 + y, 182, 31),
+    (256 + x, 206 + y, 182, 31),
+    (58 + x, 333 + y, 182, 31),
     #Team 2 is not shuffled properly (HD spectator bug)
-    (1129 + x, 335 + y, 186, 31),
-    (929 + x, 208 + y, 186, 31),
-    (1129 + x, 208 + y, 186, 31),
-    (929 + x, 76 + y, 186, 31),
-    (1129 + x, 76 + y, 186, 31),
+    (1129 + x, 333 + y, 182, 31),
+    (929 + x, 206 + y, 182, 31),
+    (1129 + x, 206 + y, 182, 31),
+    (929 + x, 76 + y, 182, 31),
+    (1129 + x, 76 + y, 182, 31),
 ]
 time.sleep(5)
 player_index = get_player_index(slot_regions, player_to_find)
