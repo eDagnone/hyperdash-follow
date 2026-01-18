@@ -5,6 +5,7 @@ import subprocess
 import pytesseract
 import requests
 import json
+from pathlib import Path
 
 HYPERDASH_PATH = "C:/Program Files/Oculus/Software/Software/triangle-factory-hyper-dash/HyperDash.exe"
 
@@ -24,12 +25,13 @@ def wait_for_hyperdash_window():
         time.sleep(0.1)
 
 def resize_hyperdash_window(window, width, height):
+    window.moveTo(3,3)
     if window_is_fullscreen(window):
         print(f"Exiting fullscreen")
         pyautogui.hotkey('Alt', 'Enter')
     print(f"Resizing to {width}x{height}")
     window.resizeTo(width, height)
-    window.moveTo(1,1)
+    window.moveTo(3,3)
     return window
     
 def wait_for_black_alternation(x_offset, y_offset):
@@ -45,17 +47,19 @@ def wait_for_black_alternation(x_offset, y_offset):
 
 def get_player_index(slot_regions, player_to_follow):
     print("Capturing Images")
-    for i in range(5): #Retry 5x if needed
+    for _ in range(5): #Retry 5x if needed
         for i, region in enumerate(slot_regions, start=1):
             image = pyautogui.screenshot(region=region)
             image = image.convert('L', dither=None)   # Convert to grayscale
-            text = pytesseract.image_to_string(image, config='--psm 11 --oem 1 -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,$\\\'\\\"" "').strip()
+            text = pytesseract.image_to_string(image, config=r'--psm 11 --oem 1 -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,$\'\" ').strip()
+            Path("images").mkdir(exist_ok=True)
             image.save(f"images/slot{i}.png")
             print(f"Slot {i%10}:\t{text}")  # Debugging purposes
-            if(text[:13] == player_to_follow[:13].strip()): #TODO: Add fuzzy matching
-                print("FOUND at ", i%10)
-                return i%10
-        time.sleep(3)
+            for j in[4,3,2,0]: #account for clan tags
+                if(text[j:13] == player_to_follow.replace(" ",  "")[:13-j].strip()): #TODO: Add fuzzy matching
+                    print("FOUND at ", i%10)
+                    return i%10
+        time.sleep(2)
 
 def get_server_list():
     response = requests.get('https://dashlistapi.hyperdash.dev/')
@@ -100,6 +104,7 @@ args = ["-vrmode", "None", "-novr"]
 process = subprocess.Popen([HYPERDASH_PATH, *args], shell=True)
 
 window = wait_for_hyperdash_window()
+pyautogui.hotkey('Alt', 'Enter') # Un-Fullscreen
 window = resize_hyperdash_window(window, 800, 600)
 
 #Window positional offset
@@ -110,10 +115,13 @@ wait_for_black_alternation(x,y)
 print("Joining", server['name'])
 
 # Set FOV to 90 degrees
+pyautogui.hotkey('Alt', 'Enter') # Un-Fullscreen
+time.sleep(0.1)
+window = resize_hyperdash_window(window, 800, 600)
 pyautogui.press('b')
 time.sleep(0.1)
 pyautogui.click(729 + x, 264 + y)
-time.sleep(0.1)
+time.sleep(0.2)
 pyautogui.press('b')
 
 pyautogui.click(500 + x, 325 + y) #Server Browser
